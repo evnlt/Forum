@@ -11,3 +11,4 @@ services:
     restart: always
     volumes:
       - ./db/migrations/0000_application_baseline.sql:/docker-entrypoint-initdb.d/0000_application_baseline.sql
+      - ./db/migrations/0001_application_seed.sql:/docker-entrypoint-initdb.d/0001_application_seed.sql
