@@ -1,0 +1,41 @@
+START TRANSACTION;
+
+CREATE TABLE "Posts" (
+    "Id" UUID NOT NULL,
+    "Title" VARCHAR(256) NOT NULL,
+    "Body" VARCHAR(1024) NOT NULL,
+
+    CONSTRAINT "PK_Posts" PRIMARY KEY ("Id")
+);
+
+CREATE TABLE "Users" (
+    "Id" UUID NOT NULL,
+    "Name" VARCHAR(64) NOT NULL,
+
+    CONSTRAINT "PK_Users" PRIMARY KEY ("Id")
+);
+
+CREATE TABLE "Comments" (
+    "Id" UUID NOT NULL,
+    "Message" VARCHAR(1024) NOT NULL,
+    "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "UserId" UUID NOT NULL,
+    "PostId" UUID NOT NULL,
+    "ParentId" UUID,
+
+    CONSTRAINT "PK_Comments" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_Comments_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_Comments_PostId" FOREIGN KEY ("PostId") REFERENCES "Posts" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_Comments_ParentId" FOREIGN KEY ("ParentId") REFERENCES "Comments" ("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "Likes" (
+    "UserId" UUID NOT NULL,
+    "CommentId" UUID NOT NULL,
+
+    CONSTRAINT "FK_Likes_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_Likes_CommentId" FOREIGN KEY ("UserId") REFERENCES "Comments" ("Id") ON DELETE CASCADE
+);
+
+COMMIT;

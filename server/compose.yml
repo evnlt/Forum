@@ -1,0 +1,13 @@
+version: '3'
+services:
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ForumDB
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - ./db/migrations/0000_application_baseline.sql:/docker-entrypoint-initdb.d/0000_application_baseline.sql
