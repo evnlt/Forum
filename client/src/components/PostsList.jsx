@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getPosts } from "../services/posts";
+import { Link } from "react-router-dom";
 
 export function PostsList() {
   const [posts, setPosts] = useState([]);
@@ -11,7 +12,7 @@ export function PostsList() {
   return posts.map((post) => {
     return (
       <h1 key={post.id}>
-        <a>{post.title}</a>
+        <Link to={`/posts/${post.id}`}>{post.title}</Link>
       </h1>
     );
   });
