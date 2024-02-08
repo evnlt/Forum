@@ -1,6 +1,9 @@
 import { makeRequest } from "./makeRequest";
 
 export function getPosts() {
-  let posts = makeRequest("/posts");
-  return posts;
+  return makeRequest("/posts");
+}
+
+export function getPost(id) {
+  return makeRequest(`/posts/${id}`);
 }
