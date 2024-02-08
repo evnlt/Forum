@@ -15,8 +15,8 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(x => x.CreatedAt).HasConversion(x => x, x => new DateTime(x.Ticks, DateTimeKind.Utc));
         builder.Property(x => x.UpdatedAt).HasConversion(x => x, x => new DateTime(x.Ticks, DateTimeKind.Utc));
 
-        builder.HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
-        builder.HasOne<Post>().WithMany().HasForeignKey(x => x.PostId);
-        builder.HasOne<Post>().WithMany().HasForeignKey(x => x.ParentId);
+        builder.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
+        builder.HasOne<Post>().WithMany( x=> x.Comments).HasForeignKey(x => x.PostId);
+        builder.HasOne( x=> x.Parent).WithMany().HasForeignKey(x => x.ParentId);
     }
 }

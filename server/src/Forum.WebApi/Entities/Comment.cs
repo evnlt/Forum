@@ -16,8 +16,6 @@ public class Comment
     
     public Guid PostId { get; set; }
 
-    public Post Post { get; set; } = default!;
-
     public Guid? ParentId { get; set; }
     
     public Comment? Parent { get; set; }

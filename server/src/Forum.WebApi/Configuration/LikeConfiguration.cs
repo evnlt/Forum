@@ -12,7 +12,7 @@ public class LikeConfiguration : IEntityTypeConfiguration<Like>
 
         builder.HasKey(x => new { x.UserId, x.CommentId });
         
-        builder.HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
-        builder.HasOne<Comment>().WithMany().HasForeignKey(x => x.CommentId);
+        builder.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
+        builder.HasOne(x => x.Comment).WithMany().HasForeignKey(x => x.CommentId);
     }
 }

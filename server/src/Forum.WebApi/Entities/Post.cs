@@ -7,4 +7,6 @@ public class Post
     public string Title { get; set; } = default!;
 
     public string Body { get; set; } = default!;
+
+    public ICollection<Comment> Comments { get; set; } = default!;
 }
