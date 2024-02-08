@@ -24,6 +24,19 @@ var app = builder.Build();
 
 app.UseCors("client");
 
-app.MapGet("api/posts", async (ApplicationDbContext applicationDbContext) => await applicationDbContext.Posts.AsNoTracking().ToListAsync());
+app.MapGet("api/posts", 
+    async (ApplicationDbContext applicationDbContext, CancellationToken cancellationToken) 
+        => await applicationDbContext.Posts
+            .AsNoTracking()
+            .Select(x => new { x.Id, x.Title})
+            .ToListAsync(cancellationToken));
 
+app.MapGet("api/posts/{id}", 
+    async (ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid id) 
+        => await applicationDbContext.Posts
+            .AsNoTracking()
+            .Include(x => x.Comments)
+            .Where(x=> x.Id == id)
+            .FirstOrDefaultAsync(cancellationToken));
+    
 app.Run();
