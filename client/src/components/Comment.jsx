@@ -12,7 +12,7 @@ const dateFormater = new Intl.DateTimeFormat(undefined, {
 export function Comment({ id, message, user, createdAt }) {
   const { getReplies } = usePost();
   const childComments = getReplies(id);
-  const [areChildrenHidden, setAreChildrenHidden] = useState(false);
+  const [areChildrenHidden, setAreChildrenHidden] = useState(true);
   return (
     <>
       <div className="comment">

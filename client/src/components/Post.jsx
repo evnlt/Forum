@@ -1,4 +1,5 @@
 import { usePost } from "../contexts/PostContext";
+import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
 
 export function Post() {
@@ -10,6 +11,7 @@ export function Post() {
       <article>{post.body}</article>
       <h3>Comments</h3>
       <section>
+        <CommentForm />
         {rootComments != null && rootComments.length > 0 && (
           <div>
             <CommentList comments={rootComments} />
