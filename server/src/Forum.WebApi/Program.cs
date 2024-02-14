@@ -1,6 +1,7 @@
 using Forum.WebApi;
 using Forum.WebApi.Entities;
 using Forum.WebApi.Extentions;
+using Forum.WebApi.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,9 +42,6 @@ app.MapGet("api/posts/{id}",
             .Where(x=> x.Id == id)
             .FirstOrDefaultAsync(cancellationToken));
 
-// TODO - create DTOs
-// TODO - fix this endpoint
-
 app.MapPost("api/posts/{postId}/comments", async (ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, [FromBody] CreateCommentRequest request) =>
 {
     if (request.Message is null || request.Message == "")
@@ -66,10 +64,3 @@ app.MapPost("api/posts/{postId}/comments", async (ApplicationDbContext applicati
 });
     
 app.Run();
-
-public class CreateCommentRequest
-{
-    public string? Message { get; init; }
-
-    public Guid? ParentId { get; init; }
-}
