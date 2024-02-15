@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { usePost } from "../contexts/PostContext";
 import { CommentList } from "./CommentList";
+import { CommentForm } from "./CommentForm";
 import { IconBtn } from "./IconBtn";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
+import { useAsyncFn } from "../hooks/useAsync";
+import { createComment } from "../services/comments";
 
 const dateFormater = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -10,9 +13,22 @@ const dateFormater = new Intl.DateTimeFormat(undefined, {
 });
 
 export function Comment({ id, message, user, createdAt }) {
-  const { getReplies } = usePost();
+  const { post, getReplies, createLocalComment } = usePost();
+  const createCommentFn = useAsyncFn(createComment);
   const childComments = getReplies(id);
   const [areChildrenHidden, setAreChildrenHidden] = useState(true);
+  const [isReplying, setIsReplying] = useState(false);
+
+  function onCommentReply(message) {
+    return createCommentFn
+      .execute({ postId: post.id, message, parentId: id })
+      .then((comment) => {
+        setIsReplying(false);
+        setAreChildrenHidden(false);
+        createLocalComment(comment);
+      });
+  }
+
   return (
     <>
       <div className="comment">
@@ -25,11 +41,25 @@ export function Comment({ id, message, user, createdAt }) {
         <div className="message">{message}</div>
         <div className="footer">
           <IconBtn Icon={FaHeart}>4</IconBtn>
-          <IconBtn Icon={FaReply} />
+          <IconBtn
+            Icon={FaReply}
+            isActive={isReplying}
+            onClick={() => setIsReplying((prev) => !prev)}
+          />
           <IconBtn Icon={FaEdit} />
           <IconBtn Icon={FaTrash} color="danger" />
         </div>
       </div>
+      {isReplying && (
+        <div className="mt-1 ml-3">
+          <CommentForm
+            autoFocus
+            onSubmit={onCommentReply}
+            loading={createCommentFn.loading}
+            error={createCommentFn.error}
+          />
+        </div>
+      )}
       {childComments?.length > 0 && (
         <>
           <div
