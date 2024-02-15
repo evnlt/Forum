@@ -45,4 +45,28 @@ public static class PostsEndpoints
 
         return Results.Ok(comment);
     }
+    
+    public static async Task<IResult> UpdateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid id, [FromBody] UpdateCommentRequest request)
+    {
+        if (request.Message is null || request.Message == "")
+        {
+            return Results.BadRequest();
+        }
+
+        var comment = await applicationDbContext.Comments
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (comment is null)
+        {
+            return Results.NotFound();
+        }
+
+        comment.Message = request.Message;
+        comment.UpdatedAt = DateTime.UtcNow;
+
+        await applicationDbContext.SaveChangesAsync(cancellationToken);
+
+        return Results.Ok(comment);
+    }
 }

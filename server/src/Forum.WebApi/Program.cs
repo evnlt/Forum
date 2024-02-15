@@ -32,9 +32,8 @@ app.UseSwaggerUI();
 app.UseCors("client");
 
 app.MapGet("api/posts", PostsEndpoints.GetPosts);
-
 app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);
-
 app.MapPost("api/posts/{postId}/comments", PostsEndpoints.CreateComment);
+app.MapPut("api/posts/{postId}/comments/{id}", PostsEndpoints.UpdateComment);
     
 app.Run();
