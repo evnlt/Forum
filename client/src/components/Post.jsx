@@ -5,7 +5,7 @@ import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
 
 export function Post() {
-  const { post, rootComments } = usePost();
+  const { post, rootComments, createLocalComment } = usePost();
   const {
     loading,
     error,
@@ -14,7 +14,7 @@ export function Post() {
 
   function onCommentCreate(message) {
     return createCommentFn({ postId: post.id, message }).then((comment) => {
-      console.log(comment);
+      createLocalComment(comment);
     });
   }
 

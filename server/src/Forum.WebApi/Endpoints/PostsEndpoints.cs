@@ -43,6 +43,6 @@ public static class PostsEndpoints
         applicationDbContext.Comments.Add(comment);
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        return Results.Ok(comment.Id);
+        return Results.Ok(comment);
     }
 }
