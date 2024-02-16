@@ -69,4 +69,21 @@ public static class PostsEndpoints
 
         return Results.Ok(comment);
     }
+    
+    public static async Task<IResult> DeleteComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid id)
+    {
+        var comment = await applicationDbContext.Comments
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (comment is null)
+        {
+            return Results.NotFound();
+        }
+
+        applicationDbContext.Comments.Remove(comment);
+        await applicationDbContext.SaveChangesAsync(cancellationToken);
+
+        return Results.Ok();
+    }
 }
