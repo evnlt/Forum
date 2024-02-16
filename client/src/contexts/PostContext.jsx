@@ -16,8 +16,8 @@ export function PostProvider({ children }) {
   const commentsByParentId = useMemo(() => {
     const group = {};
     comments.forEach((comment) => {
-      group[comment.parentId] ||= [];
-      group[comment.parentId].push(comment);
+      group[comment?.parentId] ||= [];
+      group[comment?.parentId].push(comment);
     });
     return group;
   }, [comments]);
@@ -40,11 +40,17 @@ export function PostProvider({ children }) {
   function updateLocalComment(id, message) {
     setComments((prevComments) => {
       return prevComments.map((comment) => {
-        if (comment.id == id) {
+        if (comment.id === id) {
           return { ...comment, message };
         }
         return comment;
       });
+    });
+  }
+
+  function deleteLocalComment(id) {
+    setComments((prevComments) => {
+      return prevComments.filter((comment) => comment.id !== id);
     });
   }
 
@@ -56,6 +62,7 @@ export function PostProvider({ children }) {
         getReplies,
         createLocalComment,
         updateLocalComment,
+        deleteLocalComment,
       }}
     >
       {loading ? <h1>Loading</h1> : error ? <h1>{error}</h1> : children}

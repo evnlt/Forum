@@ -5,7 +5,11 @@ import { CommentForm } from "./CommentForm";
 import { IconBtn } from "./IconBtn";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
 import { useAsyncFn } from "../hooks/useAsync";
-import { createComment, updateComment } from "../services/comments";
+import {
+  createComment,
+  updateComment,
+  deleteComment,
+} from "../services/comments";
 
 const dateFormater = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -13,10 +17,16 @@ const dateFormater = new Intl.DateTimeFormat(undefined, {
 });
 
 export function Comment({ id, message, user, createdAt }) {
-  const { post, getReplies, createLocalComment, updateLocalComment } =
-    usePost();
+  const {
+    post,
+    getReplies,
+    createLocalComment,
+    updateLocalComment,
+    deleteLocalComment,
+  } = usePost();
   const createCommentFn = useAsyncFn(createComment);
   const updateCommentFn = useAsyncFn(updateComment);
+  const deleteCommentFn = useAsyncFn(deleteComment);
   const childComments = getReplies(id);
   const [areChildrenHidden, setAreChildrenHidden] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
@@ -34,12 +44,19 @@ export function Comment({ id, message, user, createdAt }) {
 
   function onCommentUpdate(message) {
     return updateCommentFn
-      .execute({ postId: post.id, message, id: id })
+      .execute({ postId: post.id, message, id })
       .then((comment) => {
         setIsEditing(false);
         setAreChildrenHidden(false);
         updateLocalComment(id, comment.message);
       });
+  }
+
+  function onCommentDelete() {
+    return deleteCommentFn.execute({ postId: post.id, id }).then((comment) => {
+      setAreChildrenHidden(false);
+      deleteLocalComment(id);
+    });
   }
 
   return (
@@ -74,7 +91,12 @@ export function Comment({ id, message, user, createdAt }) {
             isActive={isEditing}
             onClick={() => setIsEditing((prev) => !prev)}
           />
-          <IconBtn Icon={FaTrash} color="danger" />
+          <IconBtn
+            Icon={FaTrash}
+            disabled={deleteCommentFn.loading}
+            onClick={() => onCommentDelete(id)}
+            color="danger"
+          />
         </div>
       </div>
       {isReplying && (
