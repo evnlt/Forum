@@ -21,6 +21,7 @@ public static class PostsEndpoints
         return await applicationDbContext.Posts
             .AsNoTracking()
             .Include(x => x.Comments)
+            .ThenInclude(x => x.User)
             .Where(x=> x.Id == id)
             .FirstOrDefaultAsync(cancellationToken);
     }

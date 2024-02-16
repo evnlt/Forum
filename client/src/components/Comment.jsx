@@ -63,7 +63,7 @@ export function Comment({ id, message, user, createdAt }) {
     <>
       <div className="comment">
         <div className="header">
-          <span className="name"></span>
+          <span className="name">{user.name}</span>
           <span className="date">
             {dateFormater.format(Date.parse(createdAt))}
           </span>
