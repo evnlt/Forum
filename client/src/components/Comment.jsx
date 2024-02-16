@@ -5,6 +5,7 @@ import { CommentForm } from "./CommentForm";
 import { IconBtn } from "./IconBtn";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
 import { useAsyncFn } from "../hooks/useAsync";
+import { useUser } from "../hooks/useUser";
 import {
   createComment,
   updateComment,
@@ -31,6 +32,7 @@ export function Comment({ id, message, user, createdAt }) {
   const [areChildrenHidden, setAreChildrenHidden] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const currentUser = useUser();
 
   function onCommentReply(message) {
     return createCommentFn
@@ -86,17 +88,21 @@ export function Comment({ id, message, user, createdAt }) {
             isActive={isReplying}
             onClick={() => setIsReplying((prev) => !prev)}
           />
-          <IconBtn
-            Icon={FaEdit}
-            isActive={isEditing}
-            onClick={() => setIsEditing((prev) => !prev)}
-          />
-          <IconBtn
-            Icon={FaTrash}
-            disabled={deleteCommentFn.loading}
-            onClick={() => onCommentDelete(id)}
-            color="danger"
-          />
+          {currentUser.id === user.id && (
+            <>
+              <IconBtn
+                Icon={FaEdit}
+                isActive={isEditing}
+                onClick={() => setIsEditing((prev) => !prev)}
+              />
+              <IconBtn
+                Icon={FaTrash}
+                disabled={deleteCommentFn.loading}
+                onClick={() => onCommentDelete(id)}
+                color="danger"
+              />
+            </>
+          )}
         </div>
       </div>
       {isReplying && (

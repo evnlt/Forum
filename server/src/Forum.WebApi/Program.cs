@@ -31,6 +31,12 @@ app.UseSwaggerUI();
 
 app.UseCors("client");
 
+app.Use((context, next) =>
+{
+    context.Response.Cookies.Append("userId", "75fbde02-faf8-4fea-8611-b01372bdd9b8");
+    return next(context);
+});
+
 app.MapGet("api/posts", PostsEndpoints.GetPosts);
 app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);
 app.MapPost("api/posts/{postId}/comments", PostsEndpoints.CreateComment);
