@@ -48,5 +48,6 @@ app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);
 app.MapPost("api/posts/{postId}/comments", PostsEndpoints.CreateComment);
 app.MapPut("api/posts/{postId}/comments/{id}", PostsEndpoints.UpdateComment);
 app.MapDelete("api/posts/{postId}/comments/{id}", PostsEndpoints.DeleteComment);
+app.MapPost("api/posts/{postId}/comments/{commentId}/toggleLike", PostsEndpoints.ToggleCommentLike);
     
 app.Run();

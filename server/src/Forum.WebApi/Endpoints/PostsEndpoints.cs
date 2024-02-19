@@ -111,4 +111,38 @@ public static class PostsEndpoints
 
         return Results.Ok();
     }
+    
+    public static async Task<IResult> ToggleCommentLike(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid commentId)
+    {
+        var userId = Guid.Parse("75fbde02-faf8-4fea-8611-b01372bdd9b8");
+        
+        var comment = await applicationDbContext.Comments
+            .Where(x => x.Id == commentId)
+            .Include(x => x.Likes)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (comment is null)
+        {
+            return Results.NotFound();
+        }
+
+        var like = comment.Likes.FirstOrDefault(x => x.UserId == userId);
+        if (like is null)
+        {
+            like = new Like
+            {
+                UserId = userId,
+                CommentId = commentId
+            };
+            applicationDbContext.Likes.Add(like);
+        }
+        else
+        {
+            applicationDbContext.Likes.Remove(like);
+        }
+
+        await applicationDbContext.SaveChangesAsync(cancellationToken);
+
+        return Results.Ok();
+    }
 }
