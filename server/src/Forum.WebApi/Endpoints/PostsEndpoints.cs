@@ -66,6 +66,8 @@ public static class PostsEndpoints
         applicationDbContext.Comments.Add(comment);
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
+        comment.User = (await applicationDbContext.Users.FirstOrDefaultAsync(x => x.Id == comment.UserId, cancellationToken))!;
+
         return Results.Ok(comment);
     }
     
