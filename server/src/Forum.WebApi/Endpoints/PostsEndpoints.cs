@@ -1,6 +1,7 @@
 ﻿using Forum.WebApi.Entities;
 using Forum.WebApi.Models;
 using Forum.WebApi.Requests;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,14 +17,17 @@ public static class PostsEndpoints
             .ToListAsync(cancellationToken);
     }
     
-    public static async Task<Post?> GetPost(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid id)
+    public static async Task<IResult?> GetPost(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid id)
     {
-        return await applicationDbContext.Posts
+        var post = await applicationDbContext.Posts
             .AsNoTracking()
             .Include(x => x.Comments)
-            .ThenInclude(x => x.User)
-            .Where(x=> x.Id == id)
-            .FirstOrDefaultAsync(cancellationToken);
+                .ThenInclude(c => c.User)
+            .Include(x => x.Comments)
+                .ThenInclude(c => c.Likes)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        return Results.Ok(post);
     }
     
     public static async Task<IResult> CreateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, [FromBody] CreateCommentRequest request)

@@ -35,7 +35,7 @@ CREATE TABLE "Likes" (
     "CommentId" UUID NOT NULL,
 
     CONSTRAINT "FK_Likes_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE,
-    CONSTRAINT "FK_Likes_CommentId" FOREIGN KEY ("UserId") REFERENCES "Comments" ("Id") ON DELETE CASCADE
+    CONSTRAINT "FK_Likes_CommentId" FOREIGN KEY ("CommentId") REFERENCES "Comments" ("Id") ON DELETE CASCADE
 );
 
 COMMIT;

@@ -1,4 +1,6 @@
-﻿namespace Forum.WebApi.Entities;
+﻿using System.Collections;
+
+namespace Forum.WebApi.Entities;
 
 public class Comment
 {
@@ -19,4 +21,6 @@ public class Comment
     public Guid? ParentId { get; set; }
     
     public Comment? Parent { get; set; }
+
+    public ICollection<Like> Likes { get; set; } = default!;
 }

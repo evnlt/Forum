@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Forum.WebApi;
 using Forum.WebApi.Endpoints;
 using Forum.WebApi.Extentions;
@@ -7,6 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetDbConnectionString()));
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 builder.Services.AddCors(options =>
 {
