@@ -19,12 +19,31 @@ public static class PostsEndpoints
     
     public static async Task<IResult?> GetPost(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid id)
     {
+        var userId = Guid.Parse("75fbde02-faf8-4fea-8611-b01372bdd9b8");
+        
         var post = await applicationDbContext.Posts
             .AsNoTracking()
             .Include(x => x.Comments)
                 .ThenInclude(c => c.User)
             .Include(x => x.Comments)
                 .ThenInclude(c => c.Likes)
+            .Select(x => new
+            {
+                x.Id,
+                x.Title,
+                x.Body,
+                Comments = x.Comments.Select(comment  => new
+                {
+                    comment.Id, 
+                    comment.CreatedAt, 
+                    comment.ParentId, 
+                    comment.Message, 
+                    comment.UserId, 
+                    comment.User.Name,
+                    LikeCount = comment.Likes.Count,
+                    LikedByMe = comment.Likes.Any(like => like.UserId == userId)
+                })
+            })
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         return Results.Ok(post);
