@@ -3,7 +3,7 @@ import { usePost } from "../contexts/PostContext";
 import { CommentList } from "./CommentList";
 import { CommentForm } from "./CommentForm";
 import { IconBtn } from "./IconBtn";
-import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
+import { FaEdit, FaHeart, FaRegHeart, FaReply, FaTrash } from "react-icons/fa";
 import { useAsyncFn } from "../hooks/useAsync";
 import { useUser } from "../hooks/useUser";
 import {
@@ -17,7 +17,14 @@ const dateFormater = new Intl.DateTimeFormat(undefined, {
   timeStyle: "short",
 });
 
-export function Comment({ id, message, user, createdAt }) {
+export function Comment({
+  id,
+  message,
+  user,
+  createdAt,
+  likeCount,
+  likedByMe,
+}) {
   const {
     post,
     getReplies,
@@ -82,7 +89,7 @@ export function Comment({ id, message, user, createdAt }) {
           <div className="message">{message}</div>
         )}
         <div className="footer">
-          <IconBtn Icon={FaHeart}>4</IconBtn>
+          <IconBtn Icon={likedByMe ? FaHeart : FaRegHeart}>{likeCount}</IconBtn>
           <IconBtn
             Icon={FaReply}
             isActive={isReplying}

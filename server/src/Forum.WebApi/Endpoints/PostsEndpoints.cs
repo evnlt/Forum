@@ -37,9 +37,8 @@ public static class PostsEndpoints
                     comment.Id, 
                     comment.CreatedAt, 
                     comment.ParentId, 
-                    comment.Message, 
-                    comment.UserId, 
-                    comment.User.Name,
+                    comment.Message,  
+                    comment.User,
                     LikeCount = comment.Likes.Count,
                     LikedByMe = comment.Likes.Any(like => like.UserId == userId)
                 })
