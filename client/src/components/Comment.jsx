@@ -10,6 +10,7 @@ import {
   createComment,
   updateComment,
   deleteComment,
+  toggleCommentLike,
 } from "../services/comments";
 
 const dateFormater = new Intl.DateTimeFormat(undefined, {
@@ -31,10 +32,12 @@ export function Comment({
     createLocalComment,
     updateLocalComment,
     deleteLocalComment,
+    toggleLocalCommentLike,
   } = usePost();
   const createCommentFn = useAsyncFn(createComment);
   const updateCommentFn = useAsyncFn(updateComment);
   const deleteCommentFn = useAsyncFn(deleteComment);
+  const toggleCommentLikeFn = useAsyncFn(toggleCommentLike);
   const childComments = getReplies(id);
   const [areChildrenHidden, setAreChildrenHidden] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
@@ -68,6 +71,12 @@ export function Comment({
     });
   }
 
+  function onToggleCommentLike() {
+    return toggleCommentLikeFn
+      .execute({ commentId: id, postId: post.id })
+      .then((value) => toggleLocalCommentLike(id, value));
+  }
+
   return (
     <>
       <div className="comment">
@@ -89,7 +98,13 @@ export function Comment({
           <div className="message">{message}</div>
         )}
         <div className="footer">
-          <IconBtn Icon={likedByMe ? FaHeart : FaRegHeart}>{likeCount}</IconBtn>
+          <IconBtn
+            onClick={onToggleCommentLike}
+            disabled={toggleCommentLikeFn.loading}
+            Icon={likedByMe ? FaHeart : FaRegHeart}
+          >
+            {likeCount}
+          </IconBtn>
           <IconBtn
             Icon={FaReply}
             isActive={isReplying}

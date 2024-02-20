@@ -54,6 +54,28 @@ export function PostProvider({ children }) {
     });
   }
 
+  function toggleLocalCommentLike(commentId, value) {
+    setComments((prevComments) => {
+      return prevComments.map((comment) => {
+        if (commentId === comment.id) {
+          if (value) {
+            return {
+              ...comment,
+              likeCount: comment.likeCount + 1,
+              likedByMe: true,
+            };
+          }
+          return {
+            ...comment,
+            likeCount: comment.likeCount - 1,
+            likedByMe: false,
+          };
+        }
+        return comment;
+      });
+    });
+  }
+
   return (
     <Context.Provider
       value={{
@@ -63,6 +85,7 @@ export function PostProvider({ children }) {
         createLocalComment,
         updateLocalComment,
         deleteLocalComment,
+        toggleLocalCommentLike,
       }}
     >
       {loading ? <h1>Loading</h1> : error ? <h1>{error}</h1> : children}

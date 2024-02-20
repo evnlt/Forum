@@ -127,6 +127,7 @@ public static class PostsEndpoints
         }
 
         var like = comment.Likes.FirstOrDefault(x => x.UserId == userId);
+        var value = false;
         if (like is null)
         {
             like = new Like
@@ -135,6 +136,7 @@ public static class PostsEndpoints
                 CommentId = commentId
             };
             applicationDbContext.Likes.Add(like);
+            value = true;
         }
         else
         {
@@ -143,6 +145,6 @@ public static class PostsEndpoints
 
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        return Results.Ok();
+        return Results.Ok(value);
     }
 }

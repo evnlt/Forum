@@ -22,6 +22,6 @@ export function deleteComment({ postId, id }) {
 
 export function toggleCommentLike({ postId, commentId }) {
   return makeRequest(`posts/${postId}/comments/${commentId}/toggleLike`, {
-    method: "DELETE",
+    method: "POST",
   });
 }
