@@ -1,4 +1,5 @@
 ﻿using Forum.WebApi.Entities;
+using Forum.WebApi.Extentions;
 using Forum.WebApi.Models;
 using Forum.WebApi.Requests;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -112,9 +113,10 @@ public static class PostsEndpoints
         return Results.Ok();
     }
     
-    public static async Task<IResult> ToggleCommentLike(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid commentId)
+    public static async Task<IResult> ToggleCommentLike(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid commentId)
     {
         var userId = Guid.Parse("75fbde02-faf8-4fea-8611-b01372bdd9b8");
+        var testUserId = httpContext.User.GetCurrentUserId();
         
         var comment = await applicationDbContext.Comments
             .Where(x => x.Id == commentId)
