@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Forum.WebApi.Identity;
 
 namespace Forum.WebApi.Entities;
 
@@ -14,7 +15,7 @@ public class Comment
 
     public Guid UserId { get; set; }
 
-    public User User { get; set; } = default!;
+    public ApplicationUser User { get; set; } = default!;
     
     public Guid PostId { get; set; }
 

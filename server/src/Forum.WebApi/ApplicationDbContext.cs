@@ -1,19 +1,18 @@
 ﻿using Forum.WebApi.Configuration;
 using Forum.WebApi.Entities;
+using Forum.WebApi.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Forum.WebApi;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
     public DbSet<Post> Posts { get; init; } = default!;
 
     public DbSet<Comment> Comments { get; init; } = default!;
 
     public DbSet<Like> Likes { get; init; } = default!;
-    
-    // TODO - switch to microsoft identity?
-    public DbSet<User> Users { get; init; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -22,7 +21,6 @@ public class ApplicationDbContext : DbContext
         builder.ApplyConfiguration(new CommentConfiguration());
         builder.ApplyConfiguration(new LikeConfiguration());
         builder.ApplyConfiguration(new PostConfiguration());
-        builder.ApplyConfiguration(new UserConfiguration());
     }
 
     public ApplicationDbContext(DbContextOptions dbContextOptions)
