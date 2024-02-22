@@ -1,21 +1,46 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using Forum.WebApi;
 using Forum.WebApi.Endpoints;
 using Forum.WebApi.Extentions;
 using Forum.WebApi.Identity;
+using Forum.WebApi.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddOptions<JwtOptions>().Bind(builder.Configuration.GetSection(JwtOptions.Section));
+
 builder.Services
-    .AddAuthentication()
-    .AddBearerToken();  
+    .AddAuthentication(x =>
+    {
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(x =>
+    {
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            // TODO - instantiate jwt options here
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("jsvdyrv67esv4v74ytaebvjw3i")),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            RequireExpirationTime = false,
+            ValidateLifetime = true
+        };
+    });  
+
 builder.Services.AddAuthorization();
 
 builder.Services
     .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetDbConnectionString()))
-    .AddIdentityApiEndpoints<ApplicationUser>(options =>
+    .AddIdentityCore<ApplicationUser>(options =>
     {
         options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;
@@ -24,7 +49,7 @@ builder.Services
         options.Password.RequiredLength = 6;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();;
+    .AddDefaultTokenProviders();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
     {
@@ -62,8 +87,6 @@ app.Use((context, next) =>
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
-app.MapGroup("/account").MapIdentityApi<ApplicationUser>();
 
 app.MapGet("api/posts", PostsEndpoints.GetPosts);
 app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);

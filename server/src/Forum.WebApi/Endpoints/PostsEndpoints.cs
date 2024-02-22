@@ -10,8 +10,9 @@ namespace Forum.WebApi.Endpoints;
 
 public static class PostsEndpoints
 {
-    public static async Task<IEnumerable<PostBriefDto>> GetPosts(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
+    public static async Task<IEnumerable<PostBriefDto>> GetPosts(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
     {
+        var testUserId = httpContext.User.GetCurrentUserId();
         return await applicationDbContext.Posts
             .AsNoTracking()
             .Select(x => new PostBriefDto { Id = x.Id, Title = x.Title })
