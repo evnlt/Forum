@@ -4,20 +4,28 @@ using System.Text;
 using Forum.WebApi.Identity;
 using Forum.WebApi.Options;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Forum.WebApi.Services;
 
-public class IdentityService
+public interface IIdentityService
+{
+    Task<AuthenticationResult> Register(string email, string password);
+}
+
+public class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     
     private readonly JwtOptions _jwtOptions;
 
-    public IdentityService(UserManager<ApplicationUser> userManager, JwtOptions jwtOptions)
+    public IdentityService(
+        UserManager<ApplicationUser> userManager, 
+        IOptions<JwtOptions> jwtOptions)
     {
         _userManager = userManager;
-        _jwtOptions = jwtOptions;
+        _jwtOptions = jwtOptions.Value;
     }
 
     public async Task<AuthenticationResult> Register(string email, string password)
@@ -68,6 +76,7 @@ public class IdentityService
 
         return new AuthenticationResult
         {
+            Succeeded = true,
             Token = tokenHandler.WriteToken(token)
         };
     }
@@ -75,6 +84,8 @@ public class IdentityService
 
 public class AuthenticationResult
 {
+    public bool Succeeded { get; init; }
+    
     public string Token { get; init; } = default!;
     
     public IEnumerable<string> Errors { get; init; } = default!;

@@ -5,6 +5,7 @@ using Forum.WebApi.Endpoints;
 using Forum.WebApi.Extentions;
 using Forum.WebApi.Identity;
 using Forum.WebApi.Options;
+using Forum.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,9 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOptions<JwtOptions>().Bind(builder.Configuration.GetSection(JwtOptions.Section));
+var jwtOptions = builder.Configuration.GetSection(JwtOptions.Section).Get<JwtOptions>();
+
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 builder.Services
     .AddAuthentication(x =>
@@ -27,8 +31,7 @@ builder.Services
         x.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            // TODO - instantiate jwt options here
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("jsvdyrv67esv4v74ytaebvjw3i")),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtOptions!.Secret)),
             ValidateIssuer = false,
             ValidateAudience = false,
             RequireExpirationTime = false,
@@ -87,6 +90,8 @@ app.Use((context, next) =>
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
+app.MapPost("api/account/register", AccountEndpoints.Register);
 
 app.MapGet("api/posts", PostsEndpoints.GetPosts);
 app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);
