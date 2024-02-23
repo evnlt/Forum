@@ -12,7 +12,7 @@ public static class PostsEndpoints
 {
     public static async Task<IEnumerable<PostBriefDto>> GetPosts(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
     {
-        var testUserId = httpContext.User.GetCurrentUserId();
+        var testUserId = httpContext.Request.Headers.Authorization;
         return await applicationDbContext.Posts
             .AsNoTracking()
             .Select(x => new PostBriefDto { Id = x.Id, Title = x.Title })
