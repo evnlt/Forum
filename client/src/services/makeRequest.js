@@ -1,8 +1,7 @@
 import Axios from "axios";
 
-// TODO - fix env var
 const api = Axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_REACT_APP_SERVER_URL,
   withCredentials: true,
 });
 
