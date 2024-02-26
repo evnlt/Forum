@@ -95,6 +95,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapPost("api/account/register", AccountEndpoints.Register);
+app.MapPost("api/account/login", AccountEndpoints.Login);
 
 app.MapGet("api/posts", PostsEndpoints.GetPosts);
 app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);

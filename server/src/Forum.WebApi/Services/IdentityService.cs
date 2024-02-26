@@ -12,6 +12,8 @@ namespace Forum.WebApi.Services;
 public interface IIdentityService
 {
     Task<AuthenticationResult> Register(string email, string password);
+    
+    Task<AuthenticationResult> Login(string email, string password);
 }
 
 public class IdentityService : IIdentityService
@@ -56,15 +58,45 @@ public class IdentityService : IIdentityService
             };
         }
 
+        return GenerateAuthResult(user);
+    }
+
+    public async Task<AuthenticationResult> Login(string email, string password)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+        {
+            return new AuthenticationResult
+            {
+                Errors = new[] { "User with this email does not exist" }
+            };
+        }
+
+        var passwordIsValid = await _userManager.CheckPasswordAsync(user, password);
+        
+        if (!passwordIsValid)
+        {
+            return new AuthenticationResult
+            {
+                Errors = new[] { "User password is not valid" }
+            };
+        }
+
+        return GenerateAuthResult(user);
+    }
+
+    private AuthenticationResult GenerateAuthResult(ApplicationUser user)
+    {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_jwtOptions.Secret);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim("Id", user.Id.ToString())
             }),
             Expires = DateTime.UtcNow.AddHours(1),
