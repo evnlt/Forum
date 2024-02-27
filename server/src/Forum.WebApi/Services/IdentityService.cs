@@ -14,20 +14,26 @@ public interface IIdentityService
     Task<AuthenticationResult> Register(string email, string password);
     
     Task<AuthenticationResult> Login(string email, string password);
+    
+    Task<AuthenticationResult> RefreshAccessToken(string accessToken, string refreshToken);
 }
 
 public class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    
+
     private readonly JwtOptions _jwtOptions;
+    
+    private readonly TokenValidationParameters _tokenValidationParameters;
 
     public IdentityService(
-        UserManager<ApplicationUser> userManager, 
-        IOptions<JwtOptions> jwtOptions)
+        UserManager<ApplicationUser> userManager,
+        IOptions<JwtOptions> jwtOptions,
+        TokenValidationParameters tokenValidationParameters)
     {
         _userManager = userManager;
         _jwtOptions = jwtOptions.Value;
+        _tokenValidationParameters = tokenValidationParameters;
     }
 
     public async Task<AuthenticationResult> Register(string email, string password)
@@ -74,7 +80,7 @@ public class IdentityService : IIdentityService
         }
 
         var passwordIsValid = await _userManager.CheckPasswordAsync(user, password);
-        
+
         if (!passwordIsValid)
         {
             return new AuthenticationResult
@@ -85,6 +91,39 @@ public class IdentityService : IIdentityService
 
         return GenerateAuthResult(user);
     }
+
+    public Task<AuthenticationResult> RefreshAccessToken(string accessToken, string refreshToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    private ClaimsPrincipal? GetPrincipalFromAccessToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+
+            if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
+            {
+                return null;
+            }
+
+            return principal;
+
+        } catch
+        {
+            return null;
+        }
+    }
+    
+    private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+    {
+        return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
+            jwtSecurityToken.Header.Alg.Equals(value: SecurityAlgorithms.HmacSha256, 
+                StringComparison.InvariantCultureIgnoreCase);
+    }
+    
 
     private AuthenticationResult GenerateAuthResult(ApplicationUser user)
     {
@@ -109,7 +148,7 @@ public class IdentityService : IIdentityService
         return new AuthenticationResult
         {
             Succeeded = true,
-            Token = tokenHandler.WriteToken(token)
+            AccessToken = tokenHandler.WriteToken(token)
         };
     }
 }
@@ -118,7 +157,9 @@ public class AuthenticationResult
 {
     public bool Succeeded { get; init; }
     
-    public string Token { get; init; } = default!;
+    public string AccessToken { get; init; } = default!;
+
+    public string RefreshToken { get; init; } = default!;
     
     public IEnumerable<string> Errors { get; init; } = default!;
 }

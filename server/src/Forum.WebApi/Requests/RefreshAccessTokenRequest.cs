@@ -1,6 +1,6 @@
-﻿namespace Forum.WebApi.Responses;
+﻿namespace Forum.WebApi.Requests;
 
-public class AuthSuccessResponse
+public class RefreshAccessTokenRequest
 {
     public string AccessToken { get; init; } = default!;
 

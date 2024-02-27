@@ -21,7 +21,8 @@ public static class AccountEndpoints
         
         return Results.Ok(new AuthSuccessResponse
         {
-            Token = response.Token
+            AccessToken = response.AccessToken,
+            RefreshToken = response.RefreshToken
         });
     }
     
@@ -39,7 +40,27 @@ public static class AccountEndpoints
         
         return Results.Ok(new AuthSuccessResponse
         {
-            Token = response.Token
+            AccessToken = response.AccessToken,
+            RefreshToken = response.RefreshToken
+        });
+    }
+    
+    public static async Task<IResult> Refresh(IIdentityService identityService, [FromBody] RefreshAccessTokenRequest request)
+    {
+        var response = await identityService.RefreshAccessToken(request.AccessToken, request.RefreshToken);
+
+        if (!response.Succeeded)
+        {
+            return Results.BadRequest(new AuthFailedResponse
+            {
+                Errors = response.Errors
+            });
+        }
+        
+        return Results.Ok(new AuthSuccessResponse
+        {
+            AccessToken = response.AccessToken,
+            RefreshToken = response.RefreshToken
         });
     }
 }

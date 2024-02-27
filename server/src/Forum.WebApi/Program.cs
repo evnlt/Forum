@@ -20,6 +20,18 @@ var jwtOptions = builder.Configuration.GetSection(JwtOptions.Section).Get<JwtOpt
 
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 
+var tokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtOptions!.Secret)),
+    ValidateIssuer = false,
+    ValidateAudience = false,
+    RequireExpirationTime = false,
+    ValidateLifetime = true
+};
+
+builder.Services.AddSingleton(tokenValidationParameters);
+
 builder.Services
     .AddAuthentication(x =>
     {
@@ -30,15 +42,7 @@ builder.Services
     .AddJwtBearer(x =>
     {
         x.SaveToken = true;
-        x.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtOptions!.Secret)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            RequireExpirationTime = false,
-            ValidateLifetime = true
-        };
+        x.TokenValidationParameters = tokenValidationParameters;
     });  
 
 builder.Services.AddAuthorization();
@@ -94,8 +98,8 @@ app.Use((context, next) =>
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-app.MapPost("api/account/register", AccountEndpoints.Register);
-app.MapPost("api/account/login", AccountEndpoints.Login);
+app.MapPost("api/identity/register", AccountEndpoints.Register);
+app.MapPost("api/identity/login", AccountEndpoints.Login);
 
 app.MapGet("api/posts", PostsEndpoints.GetPosts);
 app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);
