@@ -8,6 +8,8 @@ namespace Forum.WebApi;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
+    public DbSet<RefreshToken> RefreshTokens { get; init; } = default!;
+    
     public DbSet<Post> Posts { get; init; } = default!;
 
     public DbSet<Comment> Comments { get; init; } = default!;
