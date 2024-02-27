@@ -100,6 +100,7 @@ app.UseAuthorization();
 
 app.MapPost("api/identity/register", AccountEndpoints.Register);
 app.MapPost("api/identity/login", AccountEndpoints.Login);
+app.MapPost("api/identity/refresh", AccountEndpoints.Refresh);
 
 app.MapGet("api/posts", PostsEndpoints.GetPosts);
 app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);

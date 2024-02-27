@@ -2,9 +2,11 @@
 
 public class RefreshToken
 {
-    public string? Value { get; set; }
-    
-    public DateTime CreatedAt { get; set; }
+    public string Value { get; set; } = Guid.NewGuid().ToString();
+
+    public string JwtId { get; init; } = default!;
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime ExpiresAt { get; set; }
 

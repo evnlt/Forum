@@ -44,7 +44,8 @@ CREATE TABLE "AspNetUsers" (
 );
 
 CREATE TABLE "RefreshTokens" (
-    "Value" TEXT NULL,
+    "Value" TEXT NOT NULL,
+    "JwtId" TEXT NOT NULL,
     "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NULL,
     "ExpiresAt" TIMESTAMP WITHOUT TIME ZONE NULL,
     "Used" BOOLEAN NOT NULL,
@@ -52,6 +53,7 @@ CREATE TABLE "RefreshTokens" (
 
     "UserId" UUID NOT NULL,
 
+    CONSTRAINT "PK_RefreshTokens" PRIMARY KEY ("Value"),
     CONSTRAINT "FK_RefreshTokens_AspNetUsers_UserId" FOREIGN KEY ("UserId") REFERENCES "AspNetUsers" ("Id") ON DELETE CASCADE
 );
 

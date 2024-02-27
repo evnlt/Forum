@@ -19,6 +19,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        
+        builder.ApplyConfiguration(new RefreshTokenConfiguration());
 
         builder.ApplyConfiguration(new CommentConfiguration());
         builder.ApplyConfiguration(new LikeConfiguration());
