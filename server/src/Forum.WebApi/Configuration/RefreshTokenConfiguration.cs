@@ -12,5 +12,8 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.ToTable("RefreshTokens");
 
         builder.HasKey(x => x.Value);
+        
+        builder.Property(x => x.CreatedAt).HasConversion(x => x, x => new DateTime(x.Ticks, DateTimeKind.Utc));
+        builder.Property(x => x.ExpiresAt).HasConversion(x => x, x => new DateTime(x.Ticks, DateTimeKind.Utc));
     }
 }
