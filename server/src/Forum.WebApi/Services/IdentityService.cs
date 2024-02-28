@@ -213,7 +213,7 @@ public class IdentityService : IIdentityService
         {
             Succeeded = true,
             AccessToken = tokenHandler.WriteToken(accessToken),
-            RefreshToken = refreshToken.Value
+            RefreshToken = refreshToken
         };
     }
 }
@@ -224,7 +224,7 @@ public class AuthenticationResult
     
     public string AccessToken { get; init; } = default!;
 
-    public string RefreshToken { get; init; } = default!;
+    public RefreshToken RefreshToken { get; init; } = default!;
     
     public IEnumerable<string> Errors { get; init; } = default!;
 }
