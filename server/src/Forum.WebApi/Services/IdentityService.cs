@@ -192,21 +192,31 @@ public class IdentityService : IIdentityService
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim("id", user.Id.ToString())
             }),
-            Expires = DateTime.UtcNow.AddHours(1),
+            Expires = DateTime.UtcNow.AddMinutes(1),
             SigningCredentials =
                 new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
         var accessToken = tokenHandler.CreateToken(tokenDescriptor);
 
-        var refreshToken = new RefreshToken
-        {
-            JwtId = accessToken.Id,
-            UserId = user.Id,
-            ExpiresAt = DateTime.UtcNow.AddMonths(6)
-        };
+        var refreshToken = await _applicationDbContext.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == user.Id, cancellationToken);
 
-        _applicationDbContext.RefreshTokens.Add(refreshToken);
+        if (refreshToken is null)
+        {
+            refreshToken = new RefreshToken 
+            {
+                JwtId = accessToken.Id,
+                UserId = user.Id
+            };
+            
+            _applicationDbContext.RefreshTokens.Add(refreshToken);
+        }
+        else
+        {
+            refreshToken.JwtId = accessToken.Id;
+            _applicationDbContext.RefreshTokens.Update(refreshToken);
+        }
+        
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
 
         return new AuthenticationResult
