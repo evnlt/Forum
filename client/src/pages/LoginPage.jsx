@@ -4,8 +4,8 @@ import { useIdentity } from "../contexts/IdentityContext";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("user1@test.com");
+  const [password, setPassword] = useState("password");
 
   const { login } = useIdentity();
 

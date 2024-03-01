@@ -5,13 +5,13 @@ import { CommentForm } from "./CommentForm";
 import { IconBtn } from "./IconBtn";
 import { FaEdit, FaHeart, FaRegHeart, FaReply, FaTrash } from "react-icons/fa";
 import { useAsyncFn } from "../hooks/useAsync";
-import { useUser } from "../hooks/useUser";
 import {
   createComment,
   updateComment,
   deleteComment,
   toggleCommentLike,
 } from "../services/comments";
+import { useIdentity } from "../contexts/IdentityContext";
 
 const dateFormater = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -42,7 +42,7 @@ export function Comment({
   const [areChildrenHidden, setAreChildrenHidden] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const currentUser = useUser();
+  const currentUser = useIdentity();
 
   function onCommentReply(message) {
     return createCommentFn
@@ -110,23 +110,21 @@ export function Comment({
             isActive={isReplying}
             onClick={() => setIsReplying((prev) => !prev)}
           />
-          {
-            /*currentUser.id === user.id*/ true && (
-              <>
-                <IconBtn
-                  Icon={FaEdit}
-                  isActive={isEditing}
-                  onClick={() => setIsEditing((prev) => !prev)}
-                />
-                <IconBtn
-                  Icon={FaTrash}
-                  disabled={deleteCommentFn.loading}
-                  onClick={() => onCommentDelete(id)}
-                  color="danger"
-                />
-              </>
-            )
-          }
+          {currentUser.id === user.id && (
+            <>
+              <IconBtn
+                Icon={FaEdit}
+                isActive={isEditing}
+                onClick={() => setIsEditing((prev) => !prev)}
+              />
+              <IconBtn
+                Icon={FaTrash}
+                disabled={deleteCommentFn.loading}
+                onClick={() => onCommentDelete(id)}
+                color="danger"
+              />
+            </>
+          )}
         </div>
       </div>
       {isReplying && (
