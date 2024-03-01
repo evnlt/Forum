@@ -110,21 +110,23 @@ export function Comment({
             isActive={isReplying}
             onClick={() => setIsReplying((prev) => !prev)}
           />
-          {currentUser.id === user.id && (
-            <>
-              <IconBtn
-                Icon={FaEdit}
-                isActive={isEditing}
-                onClick={() => setIsEditing((prev) => !prev)}
-              />
-              <IconBtn
-                Icon={FaTrash}
-                disabled={deleteCommentFn.loading}
-                onClick={() => onCommentDelete(id)}
-                color="danger"
-              />
-            </>
-          )}
+          {
+            /*currentUser.id === user.id*/ true && (
+              <>
+                <IconBtn
+                  Icon={FaEdit}
+                  isActive={isEditing}
+                  onClick={() => setIsEditing((prev) => !prev)}
+                />
+                <IconBtn
+                  Icon={FaTrash}
+                  disabled={deleteCommentFn.loading}
+                  onClick={() => onCommentDelete(id)}
+                  color="danger"
+                />
+              </>
+            )
+          }
         </div>
       </div>
       {isReplying && (

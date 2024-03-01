@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAsyncFn } from "../hooks/useAsync";
-import { login } from "../services/identity";
 import { useIdentity } from "../contexts/IdentityContext";
 import { useNavigate } from "react-router-dom";
 
@@ -8,15 +7,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const { login } = useIdentity();
+
   const { loading, error, execute: loginFn } = useAsyncFn(login);
-  const { setAccessToken } = useIdentity();
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    loginFn({ email, password }).then((accessToken) => {
-      setAccessToken(accessToken);
+    loginFn({ email, password }).then(() => {
       navigate("/");
     });
   };
