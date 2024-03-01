@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { loginRequest } from "../services/identity";
+import { setAuthHeader } from "../services/makeRequest";
 
 const Context = React.createContext();
 
@@ -14,6 +15,7 @@ export const IdentityProvider = ({ children }) => {
   async function login(email, password) {
     const result = await loginRequest(email, password);
     setAccessToken(result.accessToken);
+    setAuthHeader(result.accessToken);
     setCurrentUser(parseJwt(result.accessToken));
   }
 

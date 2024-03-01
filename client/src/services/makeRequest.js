@@ -5,6 +5,20 @@ const api = Axios.create({
   withCredentials: true,
 });
 
+export function setAuthHeader(token) {
+  api.interceptors.request.use(
+    (config) => {
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+}
+
 export function makeRequest(url, options) {
   return api(url, options)
     .then((res) => res.data)

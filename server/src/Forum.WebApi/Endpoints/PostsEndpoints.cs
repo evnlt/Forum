@@ -2,6 +2,7 @@
 using Forum.WebApi.Extentions;
 using Forum.WebApi.Models;
 using Forum.WebApi.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,16 +13,17 @@ public static class PostsEndpoints
 {
     public static async Task<IEnumerable<PostBriefDto>> GetPosts(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
     {
-        var testUserId = httpContext.Request.Headers.Authorization;
+        var testUserId = httpContext.TryGetCurrentUserId();
+        
         return await applicationDbContext.Posts
             .AsNoTracking()
             .Select(x => new PostBriefDto { Id = x.Id, Title = x.Title })
             .ToListAsync(cancellationToken);
     }
     
-    public static async Task<IResult?> GetPost(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid id)
+    public static async Task<IResult?> GetPost(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid id)
     {
-        var userId = Guid.Parse("75fbde02-faf8-4fea-8611-b01372bdd9b8");
+        var userId = httpContext.TryGetCurrentUserId();
         
         var post = await applicationDbContext.Posts
             .AsNoTracking()
@@ -50,19 +52,22 @@ public static class PostsEndpoints
         return Results.Ok(post);
     }
     
+    [Authorize]
     public static async Task<IResult> CreateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, [FromBody] CreateCommentRequest request)
     {
         if (request.Message is null || request.Message == "")
         {
             return Results.BadRequest();
         }
+        
+        var userId = httpContext.TryGetCurrentUserId();
 
         var comment = new Comment
         {
             Message = request.Message,
             ParentId = request.ParentId,
             PostId = postId,
-            UserId = Guid.Parse("75fbde02-faf8-4fea-8611-b01372bdd9b8")
+            UserId = userId!.Value
         };
 
         applicationDbContext.Comments.Add(comment);
@@ -73,6 +78,7 @@ public static class PostsEndpoints
         return Results.Ok(comment);
     }
     
+    [Authorize]
     public static async Task<IResult> UpdateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid id, [FromBody] UpdateCommentRequest request)
     {
         if (request.Message is null || request.Message == "")
@@ -97,6 +103,7 @@ public static class PostsEndpoints
         return Results.Ok(comment);
     }
     
+    [Authorize]
     public static async Task<IResult> DeleteComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid id)
     {
         var comment = await applicationDbContext.Comments
@@ -114,10 +121,10 @@ public static class PostsEndpoints
         return Results.Ok();
     }
     
+    [Authorize]
     public static async Task<IResult> ToggleCommentLike(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid commentId)
     {
-        var userId = Guid.Parse("75fbde02-faf8-4fea-8611-b01372bdd9b8");
-        var testUserId = httpContext.User.GetCurrentUserId();
+        var userId = httpContext.TryGetCurrentUserId();
         
         var comment = await applicationDbContext.Comments
             .Where(x => x.Id == commentId)
@@ -135,7 +142,7 @@ public static class PostsEndpoints
         {
             like = new Like
             {
-                UserId = userId,
+                UserId = userId!.Value,
                 CommentId = commentId
             };
             applicationDbContext.Likes.Add(like);

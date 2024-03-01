@@ -89,11 +89,11 @@ app.UseSwaggerUI();
 
 app.UseCors("client");
 
-app.Use((context, next) =>
+/*app.Use((context, next) =>
 {
     context.Response.Cookies.Append("userId", "75fbde02-faf8-4fea-8611-b01372bdd9b8");
     return next(context);
-});
+});*/
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
