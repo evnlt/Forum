@@ -7,7 +7,7 @@ public static class ClaimsPrincipalExtensions
 {
     public static Guid GetCurrentUserId(this HttpContext httpContext)
     {
-        var claim = httpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+        var claim = httpContext.User.Claims.FirstOrDefault(x => x.Type == "id");
         if (claim is not null && Guid.TryParse(claim.Value, out var currentUserId))
         {
             return currentUserId;

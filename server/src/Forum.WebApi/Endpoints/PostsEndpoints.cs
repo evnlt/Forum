@@ -3,7 +3,6 @@ using Forum.WebApi.Extentions;
 using Forum.WebApi.Models;
 using Forum.WebApi.Requests;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,31 +48,37 @@ public static class PostsEndpoints
             })
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+        if (post is null)
+        {
+            return Results.NotFound();
+        }
+
         return Results.Ok(post);
     }
     
     [Authorize]
     public static async Task<IResult> CreateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, [FromBody] CreateCommentRequest request)
     {
-        if (request.Message is null || request.Message == "")
+        if (request.Message is null or "")
         {
             return Results.BadRequest();
         }
         
-        var userId = httpContext.TryGetCurrentUserId();
+        var userId = httpContext.GetCurrentUserId();
 
         var comment = new Comment
         {
             Message = request.Message,
             ParentId = request.ParentId,
             PostId = postId,
-            UserId = userId!.Value
+            UserId = userId
         };
 
         applicationDbContext.Comments.Add(comment);
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        comment.User = (await applicationDbContext.Users.FirstOrDefaultAsync(x => x.Id == comment.UserId, cancellationToken))!;
+        comment.User = (await applicationDbContext.Users
+            .FirstOrDefaultAsync(x => x.Id == comment.UserId, cancellationToken))!;
 
         return Results.Ok(comment);
     }
@@ -81,7 +86,7 @@ public static class PostsEndpoints
     [Authorize]
     public static async Task<IResult> UpdateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid id, [FromBody] UpdateCommentRequest request)
     {
-        if (request.Message is null || request.Message == "")
+        if (request.Message is null or "")
         {
             return Results.BadRequest();
         }
