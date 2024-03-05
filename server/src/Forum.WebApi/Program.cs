@@ -43,7 +43,7 @@ builder.Services
     {
         x.SaveToken = true;
         x.TokenValidationParameters = tokenValidationParameters;
-    });  
+    });
 
 builder.Services.AddAuthorization();
 
@@ -61,9 +61,9 @@ builder.Services
     .AddDefaultTokenProviders();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
-    {
-        options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    });
+{
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 builder.Services.AddCors(options =>
 {
@@ -81,19 +81,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerOptions>();
-    
+
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors("client");
-
-/*app.Use((context, next) =>
-{
-    context.Response.Cookies.Append("userId", "75fbde02-faf8-4fea-8611-b01372bdd9b8");
-    return next(context);
-});*/
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
@@ -108,5 +102,5 @@ app.MapPost("api/posts/{postId}/comments", PostsEndpoints.CreateComment);
 app.MapPut("api/posts/{postId}/comments/{id}", PostsEndpoints.UpdateComment);
 app.MapDelete("api/posts/{postId}/comments/{id}", PostsEndpoints.DeleteComment);
 app.MapPost("api/posts/{postId}/comments/{commentId}/toggleLike", PostsEndpoints.ToggleCommentLike);
-    
+
 app.Run();

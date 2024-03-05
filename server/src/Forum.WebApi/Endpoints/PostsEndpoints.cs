@@ -123,7 +123,7 @@ public static class PostsEndpoints
         applicationDbContext.Comments.Remove(comment);
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        return Results.Ok();
+        return Results.NoContent();
     }
     
     [Authorize]
