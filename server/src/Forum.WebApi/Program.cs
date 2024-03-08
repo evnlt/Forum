@@ -5,6 +5,7 @@ using Forum.WebApi.Endpoints;
 using Forum.WebApi.Extentions;
 using Forum.WebApi.Identity;
 using Forum.WebApi.Options;
+using Forum.WebApi.Repositories;
 using Forum.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -84,6 +85,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerOptions>();
+
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 var app = builder.Build();
 

@@ -1,53 +1,27 @@
 ﻿using Forum.WebApi.Entities;
 using Forum.WebApi.Extentions;
 using Forum.WebApi.Models;
+using Forum.WebApi.Repositories;
 using Forum.WebApi.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Forum.WebApi.Endpoints;
 
 public static class PostsEndpoints
 {
-    public static async Task<IEnumerable<PostBriefDto>> GetPosts(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
+    public static async Task<IEnumerable<PostBriefDto>> GetPosts(IPostRepository postRepository, CancellationToken cancellationToken)
     {
-        var testUserId = httpContext.TryGetCurrentUserId();
-        
-        return await applicationDbContext.Posts
-            .AsNoTracking()
-            .Select(x => new PostBriefDto { Id = x.Id, Title = x.Title })
-            .ToListAsync(cancellationToken);
+        return await postRepository.GetAll(cancellationToken);
     }
     
-    public static async Task<IResult?> GetPost(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid id)
+    public static async Task<IResult?> GetPost(HttpContext httpContext, IPostRepository postRepository, CancellationToken cancellationToken, Guid id)
     {
-        var userId = httpContext.TryGetCurrentUserId();
-        
-        var post = await applicationDbContext.Posts
-            .AsNoTracking()
-            .Include(x => x.Comments)
-                .ThenInclude(c => c.User)
-            .Include(x => x.Comments)
-                .ThenInclude(c => c.Likes)
-            .Select(x => new
-            {
-                x.Id,
-                x.Title,
-                x.Body,
-                Comments = x.Comments.Select(comment  => new
-                {
-                    comment.Id, 
-                    comment.CreatedAt, 
-                    comment.ParentId, 
-                    comment.Message,  
-                    comment.User,
-                    LikeCount = comment.Likes.Count,
-                    LikedByMe = comment.Likes.Any(like => like.UserId == userId)
-                })
-            })
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var userId = httpContext.GetCurrentUserId();
 
+        var post = await postRepository.Get(id, userId, cancellationToken);
+
+        // TODO - fix DTOs
         if (post is null)
         {
             return Results.NotFound();
@@ -57,7 +31,7 @@ public static class PostsEndpoints
     }
     
     [Authorize]
-    public static async Task<IResult> CreateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, [FromBody] CreateCommentRequest request)
+    public static async Task<IResult> CreateComment(HttpContext httpContext, ICommentRepository commentRepository, CancellationToken cancellationToken, Guid postId, [FromBody] CreateCommentRequest request)
     {
         if (request.Message is null or "")
         {
@@ -74,92 +48,39 @@ public static class PostsEndpoints
             UserId = userId
         };
 
-        applicationDbContext.Comments.Add(comment);
-        await applicationDbContext.SaveChangesAsync(cancellationToken);
-
-        comment.User = (await applicationDbContext.Users
-            .FirstOrDefaultAsync(x => x.Id == comment.UserId, cancellationToken))!;
+        await commentRepository.Add(comment, cancellationToken);
 
         return Results.Ok(comment);
     }
     
     [Authorize]
-    public static async Task<IResult> UpdateComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid id, [FromBody] UpdateCommentRequest request)
+    public static async Task<IResult> UpdateComment(ICommentRepository commentRepository, CancellationToken cancellationToken, Guid postId, Guid id, [FromBody] UpdateCommentRequest request)
     {
         if (request.Message is null or "")
         {
             return Results.BadRequest();
         }
 
-        var comment = await applicationDbContext.Comments
-            .Where(x => x.Id == id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (comment is null)
-        {
-            return Results.NotFound();
-        }
-
-        comment.Message = request.Message;
-        comment.UpdatedAt = DateTime.UtcNow;
-
-        await applicationDbContext.SaveChangesAsync(cancellationToken);
+        var comment = await commentRepository.Update(id, request.Message, cancellationToken);
 
         return Results.Ok(comment);
     }
     
     [Authorize]
-    public static async Task<IResult> DeleteComment(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid id)
+    public static async Task<IResult> DeleteComment(HttpContext httpContext, ICommentRepository commentRepository, CancellationToken cancellationToken, Guid postId, Guid id)
     {
-        var comment = await applicationDbContext.Comments
-            .Where(x => x.Id == id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (comment is null)
-        {
-            return Results.NotFound();
-        }
-
-        applicationDbContext.Comments.Remove(comment);
-        await applicationDbContext.SaveChangesAsync(cancellationToken);
+        await commentRepository.Delete(id, cancellationToken);
 
         return Results.NoContent();
     }
     
     [Authorize]
-    public static async Task<IResult> ToggleCommentLike(HttpContext httpContext, ApplicationDbContext applicationDbContext, CancellationToken cancellationToken, Guid postId, Guid commentId)
+    public static async Task<IResult> ToggleCommentLike(HttpContext httpContext, ICommentRepository commentRepository, CancellationToken cancellationToken, Guid postId, Guid commentId)
     {
-        var userId = httpContext.TryGetCurrentUserId();
-        
-        var comment = await applicationDbContext.Comments
-            .Where(x => x.Id == commentId)
-            .Include(x => x.Likes)
-            .FirstOrDefaultAsync(cancellationToken);
+        var userId = httpContext.GetCurrentUserId();
 
-        if (comment is null)
-        {
-            return Results.NotFound();
-        }
+        var liked = await commentRepository.ToggleLike(commentId, userId, cancellationToken);
 
-        var like = comment.Likes.FirstOrDefault(x => x.UserId == userId);
-        var value = false;
-        if (like is null)
-        {
-            like = new Like
-            {
-                UserId = userId!.Value,
-                CommentId = commentId
-            };
-            applicationDbContext.Likes.Add(like);
-            value = true;
-        }
-        else
-        {
-            applicationDbContext.Likes.Remove(like);
-        }
-
-        await applicationDbContext.SaveChangesAsync(cancellationToken);
-
-        return Results.Ok(value);
+        return Results.Ok(liked);
     }
 }
