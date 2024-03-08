@@ -4,6 +4,7 @@ using Forum.WebApi;
 using Forum.WebApi.Endpoints;
 using Forum.WebApi.Extentions;
 using Forum.WebApi.Identity;
+using Forum.WebApi.Middleware;
 using Forum.WebApi.Options;
 using Forum.WebApi.Repositories;
 using Forum.WebApi.Services;
@@ -90,6 +91,8 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionsMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
