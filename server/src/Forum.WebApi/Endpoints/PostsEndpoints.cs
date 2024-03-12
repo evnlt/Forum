@@ -10,12 +10,13 @@ namespace Forum.WebApi.Endpoints;
 
 public static class PostsEndpoints
 {
-    public static async Task<IEnumerable<PostBriefDto>> GetPosts(IPostRepository postRepository, CancellationToken cancellationToken)
+    public static async Task<IResult> GetPosts(IPostRepository postRepository, CancellationToken cancellationToken)
     {
-        return await postRepository.GetAll(cancellationToken);
+        var posts = await postRepository.GetAll(cancellationToken);
+        return Results.Ok(posts);
     }
     
-    public static async Task<IResult?> GetPost(HttpContext httpContext, IPostRepository postRepository, CancellationToken cancellationToken, Guid id)
+    public static async Task<IResult> GetPost(HttpContext httpContext, IPostRepository postRepository, CancellationToken cancellationToken, Guid id)
     {
         var userId = httpContext.GetCurrentUserId();
 
