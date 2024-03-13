@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using FluentValidation;
 using Forum.WebApi;
 using Forum.WebApi.Endpoints;
 using Forum.WebApi.Extentions;
@@ -90,6 +91,8 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerOptio
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionsMiddleware>();
@@ -106,11 +109,6 @@ app.MapPost("api/identity/register", AccountEndpoints.Register);
 app.MapPost("api/identity/login", AccountEndpoints.Login);
 app.MapPost("api/identity/refresh", AccountEndpoints.Refresh);
 
-app.MapGet("api/posts", PostsEndpoints.GetPosts);
-app.MapGet("api/posts/{id}", PostsEndpoints.GetPost);
-app.MapPost("api/posts/{postId}/comments", PostsEndpoints.CreateComment);
-app.MapPut("api/posts/{postId}/comments/{id}", PostsEndpoints.UpdateComment);
-app.MapDelete("api/posts/{postId}/comments/{id}", PostsEndpoints.DeleteComment);
-app.MapPost("api/posts/{postId}/comments/{commentId}/toggleLike", PostsEndpoints.ToggleCommentLike);
+app.MapPostsEndpoints();
 
 app.Run();
