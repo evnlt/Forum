@@ -1,6 +1,5 @@
 ﻿using Forum.WebApi.Entities;
 using Forum.WebApi.Extentions;
-using Forum.WebApi.Models;
 using Forum.WebApi.Repositories;
 using Forum.WebApi.Requests;
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +21,6 @@ public static class PostsEndpoints
 
         var post = await postRepository.Get(id, userId, cancellationToken);
 
-        // TODO - fix DTOs
         if (post is null)
         {
             return Results.NotFound();

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Forum.WebApi.Identity;
+﻿using Forum.WebApi.Identity;
 
 namespace Forum.WebApi.Entities;
 

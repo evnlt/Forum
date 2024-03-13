@@ -5,15 +5,14 @@ namespace Forum.WebApi.Repositories;
 
 public interface IPostRepository
 {
-    Task<object> Get(Guid id, Guid userId, CancellationToken cancellationToken);
+    Task<PostDto?> Get(Guid id, Guid userId, CancellationToken cancellationToken);
     
     Task<ICollection<PostBriefDto>> GetAll(CancellationToken cancellationToken);
 }
 
 public class PostRepository(ApplicationDbContext applicationDbContext) : IPostRepository
 {
-    // TODO - remove object 
-    public async Task<object> Get(Guid id, Guid userId, CancellationToken cancellationToken)
+    public async Task<PostDto?> Get(Guid id, Guid userId, CancellationToken cancellationToken)
     {
         var post = await applicationDbContext.Posts
             .AsNoTracking()
@@ -21,18 +20,18 @@ public class PostRepository(ApplicationDbContext applicationDbContext) : IPostRe
             .ThenInclude(c => c.User)
             .Include(x => x.Comments)
             .ThenInclude(c => c.Likes)
-            .Select(x => new
+            .Select(x => new PostDto
             {
-                x.Id,
-                x.Title,
-                x.Body,
-                Comments = x.Comments.Select(comment  => new
+                Id = x.Id,
+                Title = x.Title,
+                Body = x.Body,
+                Comments = x.Comments.Select(comment  => new CommentDto
                 {
-                    comment.Id, 
-                    comment.CreatedAt, 
-                    comment.ParentId, 
-                    comment.Message,  
-                    comment.User,
+                    Id = comment.Id, 
+                    CreatedAt = comment.CreatedAt, 
+                    ParentId = comment.ParentId, 
+                    Message = comment.Message,  
+                    User = comment.User,
                     LikeCount = comment.Likes.Count,
                     LikedByMe = comment.Likes.Any(like => like.UserId == userId)
                 })
